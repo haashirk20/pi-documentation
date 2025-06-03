@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{username}} NodeRed Documentation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.4;
+    }
+    
+    .collapsible {
+      background-color: #f8f9fa;
+      color: #333;
+      cursor: pointer;
+      padding: 12px 18px;
+      width: 100%;
+      border: 1px solid #ddd;
+      text-align: left;
+      outline: none;
+      font-size: 16px;
+      font-weight: bold;
+      margin: 5px 0;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .collapsible:hover {
+      background-color: #e9ecef;
+    }
+    
+    .collapsible.active {
+      background-color: #007bff;
+      color: white;
+    }
+    
+    .collapsible::after {
+      content: '\25B6'; /* Right arrow */
+      font-size: 14px;
+      transition: transform 0.3s ease;
+    }
+    
+    .collapsible.active::after {
+      transform: rotate(90deg);
+    }
+    
+    .content {
+      padding: 0 18px;
+      display: none;
+      overflow: hidden;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      margin-bottom: 10px;
+    }
+    
+    .content.show {
+      display: block;
+      padding: 18px;
+    }
+    
+    /* Service level styling */
+    .service-collapsible {
+      background-color: #343a40;
+      color: white;
+      font-size: 18px;
+      margin: 20px 0 0 0;
+    }
+    
+    .service-collapsible:hover {
+      background-color: #495057;
+    }
+    
+    .service-collapsible.active {
+      background-color: #28a745;
+    }
+    
+    /* Flow level styling */
+    .flow-collapsible {
+      background-color: #6c757d;
+      color: white;
+      font-size: 14px;
+      margin: 10px 0 5px 0;
+    }
+    
+    .flow-collapsible:hover {
+      background-color: #5a6268;
+    }
+    
+    .flow-collapsible.active {
+      background-color: #17a2b8;
+    }
+    
+    /* Service info styling */
+    .service-info {
+      margin: 20px 0;
+    }
+    
+    .service-info h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 5px;
+    }
+    
+    .service-info table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 30px;
+    }
+    
+    .service-info th, .service-info td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    
+    .service-info th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      width: 40%;
+    }
+    
+    /* Flows table styling */
+    .flows-section {
+      margin-top: 20px;
+    }
+    
+    .flows-section h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 5px;
+    }
+    
+    .flows-table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    
+    .flows-table th, .flows-table td {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    
+    .flows-table th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+    }
+    
+    .flows-table td:nth-child(1) { /* Type column */
+      width: 5%;
+    }
+    
+    .flows-table td:nth-child(2) { /* Label column */
+      width: 10%;
+    }
+    
+    .flows-table td:nth-child(3) { /* Status column */
+      width: 5%;
+    }
+    
+    .flows-table td:nth-child(4) { /* Description column */
+      width: 80%;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{username}} Documentation</h1>
+  
+  {{#services}}
+  <button class="collapsible service-collapsible">{{name}}: {{port}}</button>
+  <div class="content">
+    
+    <!-- Service Information Section -->
+    <div class="service-info">
+      <h3>Service Information</h3>
+      <table>
+        <tr><th>IP Address</th><td>{{ip}}</td></tr>
+        <tr><th>Port</th><td>{{port}}</td></tr>
+        <tr><th>Node-RED Version</th><td>{{nodeRedVersion}}</td></tr>
+        <tr><th>Node.js Version</th><td>{{nodeVersion}}</td></tr>
+      </table>
+    </div>
+    
+    <!-- Flows Section -->
+    <div class="flows-section">
+      <h3>Flows & Subflows</h3>
+      <table class="flows-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Label</th>
+            <th>Status</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#description}}
+          <tr>
+            <td>{{type}}</td>
+            <td>{{label}}</td>
+            <td>{{status}}</td>
+            <td>{{info}}</td>
+          </tr>
+          {{/description}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{/services}}
+
+  <script>
+    // Add click event listeners to all collapsible elements
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        
+        if (content.classList.contains("show")) {
+          content.classList.remove("show");
+        } else {
+          content.classList.add("show");
+        }
+      });
+    }
+  </script>
+</body>
+</html>
