@@ -1,29 +1,45 @@
-# pi-documentation
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/hero-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/hero-light.svg">
+    <img src="assets/readme/hero-dark.svg" width="880" alt="pi-documentation: a command-line tool that writes one HTML page per user documenting every Node-RED service under PM2. Example of the generated page with one service expanded.">
+  </picture>
+</p>
 
-A command-line tool that generates an HTML documentation page for every Node-RED instance on a host by querying each instance's admin API.
+<p align="center">
+  <strong>One HTML page per user that documents every Node-RED service running under PM2.</strong><br>
+  <sub>Node.js, axios, Mustache and a Bash wrapper. It reads the PM2 ecosystem file and queries each instance's admin API.</sub>
+</p>
 
-![Node.js](https://img.shields.io/badge/Node.js-5FA04E?logo=nodedotjs&logoColor=white)
-![Node-RED](https://img.shields.io/badge/Node--RED-8F0000?logo=nodered&logoColor=white)
-![Bash](https://img.shields.io/badge/Bash-4EAA25?logo=gnubash&logoColor=white)
-![License: MIT](https://img.shields.io/badge/License-MIT-blue)
-
-## Demo
+<p align="center">
+  <img src="https://img.shields.io/badge/Node.js-343A40?style=flat-square&logo=nodedotjs&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Node--RED-343A40?style=flat-square&logo=nodered&logoColor=white" alt="Node-RED">
+  <img src="https://img.shields.io/badge/Bash-343A40?style=flat-square&logo=gnubash&logoColor=white" alt="Bash">
+  <img src="https://img.shields.io/badge/License-MIT-343A40?style=flat-square" alt="License: MIT">
+</p>
 
 <!-- TODO: demo link or video -->
 
-## Overview
+---
 
 When several Node-RED services run side by side under PM2, there is no single place to see what each one is running. This tool reads the PM2 `ecosystem.config.js`, calls the admin API of every service listed in it, and writes one HTML page per user. The page lists each service's IP, port, Node-RED version and Node.js version, plus every flow and subflow with its status and the notes written in its info field.
 
-## Key features
+## How it works
 
-- Discovers services from a PM2 `ecosystem.config.js` instead of a hand-maintained list. Each app's `env` supplies `IP` (defaults to `localhost`), `PORT` and `TOKEN`.
-- Calls `/flows`, `/settings` and `/diagnostics` for each service in parallel with a bearer token.
-- Lists only tabs and subflows, marks disabled flows, and pulls in each flow's info text as its description.
-- Skips services with no port or token, and keeps going when one service is unreachable, so one bad instance doesn't block the rest.
-- `full` mode documents separate dev, test and prod instances in one run, running each as its own system user (`nodereddev`, `noderedtest`, `noderedprod`) through `sudo -u`.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/how-it-works-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/how-it-works-light.svg">
+    <img src="assets/readme/how-it-works-dark.svg" width="880" alt="How it works: ecosystem.config.js, gatherServiceData calls /flows, /settings and /diagnostics, serviceData.json, renderTemplate fills template.mustache and writes username.html.">
+  </picture>
+</p>
 
-## Tech stack
+The tool runs in two steps. `gatherServiceData` collects data from every service and writes it to `serviceData.json`. `renderTemplate` then fills `template.mustache` with that JSON and writes `<username>.html`. Keeping the JSON on disk means the raw data can be checked separately from the rendered page.
+
+- Services come from the PM2 `ecosystem.config.js`, not a hand-maintained list. Each app's `env` supplies `IP` (defaults to `localhost`), `PORT` and `TOKEN`.
+- The three calls per service (`/flows`, `/settings`, `/diagnostics`) go out together with `Promise.all` and a bearer token.
+- Only tabs and subflows are listed. Disabled flows are marked, and each flow's info text becomes its description.
+- Services are handled one after another inside a `try/catch`. A failed service is logged and left off the page, and the rest still render.
 
 | Area | Tools |
 |---|---|
@@ -33,26 +49,17 @@ When several Node-RED services run side by side under PM2, there is no single pl
 | Wrapper | Bash (`document.sh`) |
 | Target | Node-RED admin HTTP API, PM2 ecosystem files |
 
-## Architecture
+## Two modes
 
-The tool runs in two steps. `gatherServiceData` collects data from every service and writes it to `serviceData.json`. `renderTemplate` then fills `template.mustache` with that JSON and writes `<username>.html`. Keeping the JSON on disk means the raw data can be checked separately from the rendered page.
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/modes-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="assets/readme/modes-light.svg">
+    <img src="assets/readme/modes-dark.svg" width="880" alt="Two modes: local documents one user; full runs as nodereddev, noderedtest and noderedprod and writes a page for each.">
+  </picture>
+</p>
 
-```mermaid
-flowchart LR
-    eco["ecosystem.config.js<br/>(PM2 apps: IP, PORT, TOKEN)"] --> gather["gatherServiceData"]
-    gather -- "GET /flows, /settings, /diagnostics" --> nr["Node-RED instances"]
-    nr --> gather
-    gather --> json["serviceData.json"]
-    json --> render["renderTemplate"]
-    tpl["template.mustache"] --> render
-    render --> html["&lt;username&gt;.html"]
-    sh["document.sh<br/>local | full"] --> gather
-```
-
-## Technical highlights
-
-- The three API calls per service go out together with `Promise.all`, and services are handled one after another inside a `try/catch`. A failed service is logged and left off the page, and the rest still render.
-- In `full` mode the script runs once per environment as that environment's system user, so dev, test and prod each get their own page from their own ecosystem file.
+`local` documents one user from one ecosystem file. `full` documents separate dev, test and prod instances in one run: it runs the script once per environment as that environment's system user through `sudo -u`, so each gets its own page from its own ecosystem file.
 
 ## Getting started
 
